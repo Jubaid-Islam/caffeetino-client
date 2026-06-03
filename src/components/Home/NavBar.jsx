@@ -18,7 +18,7 @@ const NavBar = () => {
     const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false)
     const [isSearchOpen, setIsSearchOpen] = useState(false)
     const [searchQuery, setSearchQuery] = useState('')
-       const [scrolled, setScrolled] = useState(false)
+    const [scrolled, setScrolled] = useState(false)
 
     // Refs for click outside
     const userDropdownRef = useRef(null)
