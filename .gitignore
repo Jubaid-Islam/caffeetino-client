@@ -20,6 +20,7 @@ dist-ssr
 # Firebase
 .firebase/
 .firebaserc
+coffee-web.json
 
 # Build outputs
 build/
