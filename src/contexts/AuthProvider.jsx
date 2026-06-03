@@ -31,7 +31,12 @@ const AuthProvider = ({ children }) => {
     return updateProfile(auth.currentUser, updatedData)
   }
 
-  const logOut = () => {
+  const logOut = async () => {
+    try {
+      await axios.post(`${import.meta.env.VITE_URL}/logout`, {}, { withCredentials: true })
+    } catch (err) {
+      console.error('Error clearing token cookie:', err)
+    }
     localStorage.removeItem('token')
     return signOut(auth)
   }
@@ -48,9 +53,6 @@ const AuthProvider = ({ children }) => {
         )
           .then(res => {
             console.log(res.data);
-            if (res.data.token) {
-              localStorage.setItem('token', res.data.token);
-            }
             setLoading(false)
           })
           .catch(err => {

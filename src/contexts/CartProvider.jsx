@@ -1,12 +1,14 @@
 import Swal from "sweetalert2";
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useContext } from 'react';
 import { CartContext } from './CartContext';
 import useAxiosSecure from '../Hooks/useAxiosSecure';
+import { AuthContext } from './AuthContext';
 
 const CartProvider = ({ children }) => {
     const [cartItems, setCartItems] = useState([]);
     const [loading, setLoading] = useState(true);
     const axiosSecure = useAxiosSecure();
+    const { user, loading: authLoading } = useContext(AuthContext);
 
     // Load cart from backend on mount
     useEffect(() => {
@@ -22,8 +24,15 @@ const CartProvider = ({ children }) => {
             }
         };
 
-        loadCart();
-    }, [axiosSecure]);
+        if (!authLoading) {
+            if (user) {
+                loadCart();
+            } else {
+                setCartItems([]);
+                setLoading(false);
+            }
+        }
+    }, [axiosSecure, user, authLoading]);
 
     // Add item to cart or update quantity if already exists
     const addToCart = async (coffee) => {
