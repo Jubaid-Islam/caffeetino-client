@@ -206,11 +206,17 @@ const NavBar = () => {
                                         onClick={() => setIsUserDropdownOpen(!isUserDropdownOpen)}
                                         className="flex items-center gap-2 pl-2 pr-1 py-1 rounded-full border border-gray-200 hover:border-amber-300 hover:shadow-sm transition-all bg-white"
                                     >
-                                        <img
-                                            src={user.photoURL || 'https://via.placeholder.com/150'}
-                                            alt="Profile"
-                                            className="w-8 h-8 rounded-full object-cover"
-                                        />
+                                        {user.photoURL ? (
+                                            <img
+                                                src={user.photoURL}
+                                                alt="Profile"
+                                                className="w-8 h-8 rounded-full object-cover"
+                                            />
+                                        ) : (
+                                            <div className="w-8 h-8 rounded-full bg-amber-600 text-white flex items-center justify-center font-bold text-sm uppercase">
+                                                {user.displayName ? user.displayName.charAt(0) : 'U'}
+                                            </div>
+                                        )}
                                         <RiArrowDropDownLine className={`w-5 h-5 text-gray-400 transition-transform ${isUserDropdownOpen ? 'rotate-180' : ''}`} />
                                     </button>
 

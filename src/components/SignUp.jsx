@@ -12,16 +12,16 @@ const SignUp = () => {
     const form = e.target
     const formData = new FormData(form)
 
-    const { email, password, name, photo } = Object.fromEntries(
+    const { email, password, name } = Object.fromEntries(
       formData.entries()
     )
 
     // create user in the firebase
     createUser(email, password).then(result => {
       console.log(result.user)
-      updateUser({ displayName: name, photoURL: photo })
+      updateUser({ displayName: name })
         .then(() => {
-          setUser({ ...result?.user, displayName: name, photoURL: photo })
+          setUser({ ...result?.user, displayName: name, photoURL: null })
           Swal.fire({
             icon: 'success',
             title: 'Your account is created.',
@@ -44,13 +44,6 @@ const SignUp = () => {
           <label className='label'>Name</label>
           <input type='text' name='name' className='input' placeholder='Name' />
 
-          <label className='label'>photo</label>
-          <input
-            type='text'
-            name='photo'
-            className='input'
-            placeholder='Photo URL'
-          />
           <label className='label'>Email</label>
           <input
             type='email'
