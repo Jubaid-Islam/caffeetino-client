@@ -1,70 +1,96 @@
-import {  FaInstagram, FaFacebook, FaTwitter } from 'react-icons/fa';
-import { GiCoffeeBeans } from 'react-icons/gi';
+// Footer.jsx
+import { Link } from 'react-router-dom';
+import {
+  FaFacebookF,
+  FaInstagram,
+  FaTwitter,
+  FaYoutube,
+  FaEnvelope,
+  FaCoffee,
+} from 'react-icons/fa';
+import { HiOutlineMail } from 'react-icons/hi';
+import logo from "../../assets/more/logo.png";
+
+
 
 const Footer = () => {
-    return (
-        <div>
-                  <footer className='bg-gray-900 text-gray-300 pt-12 sm:pt-16 pb-6 sm:pb-8'>
-        <div className='container mx-auto'>
-          <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-10 md:gap-12 mb-8 sm:mb-12'>
-            <div>
-              <div className='flex items-center gap-2 mb-4 sm:mb-6'>
-                <GiCoffeeBeans className='text-3xl text-amber-500' />
-                <span className='text-xl sm:text-2xl font-bold text-white'>BeanBliss</span>
-              </div>
-              <p className='text-xs sm:text-sm leading-relaxed mb-4 sm:mb-6'>
-                Premium coffee experiences delivered fresh. Savor the difference with every cup.
-              </p>
-              <div className='flex gap-3'>
-                <a href='#' className='btn btn-circle btn-ghost btn-sm sm:btn-md hover:bg-amber-700 transition'>
-                  <FaInstagram className='text-lg' />
-                </a>
-                <a href='#' className='btn btn-circle btn-ghost btn-sm sm:btn-md hover:bg-blue-700 transition'>
-                  <FaFacebook className='text-lg' />
-                </a>
-                <a href='#' className='btn btn-circle btn-ghost btn-sm sm:btn-md hover:bg-sky-500 transition'>
-                  <FaTwitter className='text-lg' />
-                </a>
-              </div>
-            </div>
+  const currentYear = new Date().getFullYear();
 
-            <div>
-              <h4 className='text-base sm:text-lg font-bold text-white mb-4 sm:mb-6'>Quick Links</h4>
-              <ul className='space-y-2 sm:space-y-3 text-xs sm:text-sm'>
-                <li><a href='#' className='hover:text-amber-400 transition-colors'>All Coffee</a></li>
-                <li><a href='#' className='hover:text-amber-400 transition-colors'>Subscription Plans</a></li>
-                <li><a href='#' className='hover:text-amber-400 transition-colors'>Brewing Guides</a></li>
-                <li><a href='#' className='hover:text-amber-400 transition-colors'>Wholesale</a></li>
-              </ul>
-            </div>
+  return (
+    <footer className="bg-white border-t border-stone-200 pt-16 pb-8 px-4 sm:px-6">
+      <div className="container">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12 pb-12 border-b border-stone-200">
 
-            <div>
-              <h4 className='text-base sm:text-lg font-bold text-white mb-4 sm:mb-6'>Support</h4>
-              <ul className='space-y-2 sm:space-y-3 text-xs sm:text-sm'>
-                <li><a href='#' className='hover:text-amber-400 transition-colors'>Contact Us</a></li>
-                <li><a href='#' className='hover:text-amber-400 transition-colors'>FAQs</a></li>
-                <li><a href='#' className='hover:text-amber-400 transition-colors'>Shipping Policy</a></li>
-                <li><a href='#' className='hover:text-amber-400 transition-colors'>Returns</a></li>
-              </ul>
-            </div>
+          {/* Brand */}
+          <div>
+            <Link to="/" className="inline-flex items-center gap-2 mb-4">
+              <img src={logo} alt="Caffeetino logo" className="h-10 w-auto" />
+              <span className="text-xl font-medium text-stone-800 tracking-[0.1em] transition-colors">
+                Caffeetino
+              </span>
+            </Link>
+            <p className="text-sm text-stone-500 max-w-xs leading-relaxed">
+              Hand‑roasted specialty coffee, delivered fresh to your doorstep. Experience the bliss in every cup.
+            </p>
+          </div>
 
-            <div>
-              <h4 className='text-base sm:text-lg font-bold text-white mb-4 sm:mb-6'>Newsletter</h4>
-              <p className='text-xs sm:text-sm mb-3 sm:mb-4'>Subscribe for exclusive offers and brewing tips</p>
-              <div className='join join-vertical w-full sm:join-horizontal'>
-                <input type='email' placeholder='Your email' className='input input-bordered input-sm sm:input-md join-item flex-1 text-xs sm:text-sm' />
-                <button className='btn btn-primary btn-sm sm:btn-md join-item'>Subscribe</button>
-              </div>
+          {/* Quick links */}
+          <div>
+            <h4 className="text-stone-900 font-bold text-sm uppercase tracking-wider mb-4">Quick Links</h4>
+            <ul className="space-y-3">
+              {[{ label: 'About Us', to: '/about' },
+              { label: 'All Coffees', to: '/allCoffees' },
+              { label: 'My Coffees', to: '/myCoffees' },
+              { label: 'Contact', to: '/contact' }].map((item) => (
+                <li key={item.to}>
+                  <Link to={item.to} className="text-sm text-stone-600 hover:text-amber-600 transition-colors">
+                    {item.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Social */}
+          <div>
+            <h4 className="text-stone-900 font-bold text-sm uppercase tracking-wider mb-4">Follow Us</h4>
+            <div className="flex gap-3">
+              {[FaFacebookF, FaInstagram, FaTwitter, FaYoutube].map((Icon, idx) => (
+                <a key={idx} href="#" className="w-10 h-10 flex items-center justify-center rounded-full bg-stone-100 text-stone-600 hover:bg-amber-900 hover:text-white transition-all duration-300">
+                  <Icon className="text-sm" />
+                </a>
+              ))}
             </div>
           </div>
 
-          <div className='border-t border-gray-800 pt-6 sm:pt-8 text-center text-xs sm:text-sm'>
-            <p>&copy; {new Date().getFullYear()} BeanBliss Coffee Co. All rights reserved.</p>
+          {/* Newsletter */}
+          <div>
+            <h4 className="text-stone-900 font-bold text-sm uppercase tracking-wider mb-4">Stay Caffeinated</h4>
+            <p className="text-sm text-stone-500 mb-4">Get the latest drops and exclusive offers.</p>
+            <form className="flex flex-col gap-2">
+              <input
+                type="email"
+                placeholder="Your email address"
+                className="w-full px-4 py-2.5 bg-stone-50 border border-stone-200 rounded-lg text-sm text-stone-900 placeholder-stone-400 focus:outline-none   transition-all"
+              />
+              <button type="submit" className="w-full px-5 py-2.5 bg-amber-900 hover:bg-amber-800 text-white text-sm font-semibold rounded-lg transition-colors">
+                Subscribe
+              </button>
+            </form>
           </div>
         </div>
-      </footer>
+
+        {/* Copyright */}
+        <div className="pt-8 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-stone-500">
+          <p>&copy; {currentYear} Caffeetino. All rights reserved.</p>
+          <div className="flex gap-6">
+            <a href="#" className="hover:text-amber-600 transition-colors">Privacy Policy</a>
+            <a href="#" className="hover:text-amber-600 transition-colors">Terms of Service</a>
+          </div>
         </div>
-    );
+      </div>
+    </footer>
+  );
 };
 
 export default Footer;

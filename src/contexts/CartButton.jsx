@@ -12,6 +12,7 @@ const CartButton = ({ coffee }) => {
       text: `Do you want to add "${coffee.name}" to your cart?`,
       showCancelButton: true,
       confirmButtonText: "Yes, Add",
+      confirmButtonColor: '#78350F',
       cancelButtonText: "No",
 
     }).then((result) => {
@@ -36,10 +37,10 @@ const CartButton = ({ coffee }) => {
     <button
       onClick={handleAddToCart}
       disabled={coffee.quantity === 0}
-      className={`btn btn-sm sm:btn-md rounded-lg font-semibold flex gap-2
+      className={`btn rounded-lg bg-white font-semibold flex gap-2
         ${coffee.quantity === 0
           ? "btn-disabled py-3 bg-gray-300 text-gray-500 cursor-not-allowed"
-          : "btn-primary"
+          : " text-amber-900"
         }`}
     >
       <FaShoppingCart />

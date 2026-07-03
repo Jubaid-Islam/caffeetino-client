@@ -10,7 +10,7 @@ const CartProvider = ({ children }) => {
     const axiosSecure = useAxiosSecure();
     const { user, loading: authLoading } = useContext(AuthContext);
 
-    // Load cart from backend on mount
+    // Load cart from backend
     useEffect(() => {
         const loadCart = async () => {
             try {
@@ -34,13 +34,29 @@ const CartProvider = ({ children }) => {
         }
     }, [axiosSecure, user, authLoading]);
 
+    const Toast = Swal.mixin({
+        toast: true,
+        position: "top-end",
+        showConfirmButton: false,
+        timer: 1500,
+        timerProgressBar: true,
+        didOpen: (toast) => {
+            toast.onmouseenter = Swal.stopTimer;
+            toast.onmouseleave = Swal.resumeTimer;
+        },
+    });
+
     // Add item to cart or update quantity if already exists
     const addToCart = async (coffee) => {
         try {
             const response = await axiosSecure.post(`/cart`, { coffee });
             setCartItems(response.data.items || []);
-        } catch (error) {
-            console.error('Error adding to cart:', error.response?.data || error.message);
+        } catch (err) {
+            Swal.fire({
+                icon: "error",
+                title: "Unable to update cart",
+                text: err.response?.data?.message || err.message,
+            });
         }
     };
 
@@ -55,28 +71,23 @@ const CartProvider = ({ children }) => {
 
         if (result.isConfirmed) {
             try {
-                const response = await axiosSecure.delete(`/cart/${coffeeId}`)
-                setCartItems(response.data.items || [])
+                const response = await axiosSecure.delete(`/cart/${coffeeId}`);
+                setCartItems(response.data.items || []);
 
-                const Toast = Swal.mixin({
-                    toast: true, position: "top-end", showConfirmButton: false, timer: 1500, timerProgressBar: true,
-                    didOpen: (toast) => {
-                        toast.onmouseenter = Swal.stopTimer
-                        toast.onmouseleave = Swal.resumeTimer
-                    }
-                })
                 Toast.fire({
-                    icon: "success", title: "  Cart remove successfully"
-                })
+                    icon: "success",
+                    title: "Cart removed successfully",
+                });
             } catch (error) {
-                console.error("Error removing from cart:", error)
-
-                Swal.fire({
-                    title: "Error!", text: "Could not remove item. Please try again.", icon: "error"
-                })
+                Swal.fire(
+                    "Error",
+                    error.response?.data?.message || error.message,
+                    "error"
+                );
             }
         }
     }
+
 
 
     // Update quantity of an item
@@ -90,7 +101,7 @@ const CartProvider = ({ children }) => {
             const response = await axiosSecure.patch(`/cart/${coffeeId}`, { quantity });
             setCartItems(response.data.items || []);
         } catch (error) {
-            console.error('Error updating quantity:', error.response?.data || error.message);
+            Swal.fire("Error", error.response?.data?.message || error.message, "error");
         }
     };
 
@@ -100,7 +111,7 @@ const CartProvider = ({ children }) => {
             setCartItems([]);
             await axiosSecure.delete(`/cart`);
         } catch (error) {
-            console.error("Error clearing cart:", error)
+            Swal.fire("Error", error.response?.data?.message || error.message, "error");
         }
     };
 
@@ -129,10 +140,11 @@ const CartProvider = ({ children }) => {
                     icon: "success", title: " Clear successfully"
                 })
             } catch (error) {
-                console.error("Error clearing cart:", error)
-                Swal.fire({
-                    title: "Error!", text: "Could not clear cart. Please try again.", icon: "error"
-                })
+                Swal.fire(
+                    "Error",
+                    error.response?.data?.message || error.message,
+                    "error"
+                );
             }
         }
     };
@@ -167,6 +179,8 @@ const CartProvider = ({ children }) => {
             {children}
         </CartContext.Provider>
     );
-};
+
+}
+
 
 export default CartProvider;

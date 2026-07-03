@@ -10,6 +10,7 @@ import {
   updateProfile,
 } from 'firebase/auth'
 import axios from 'axios'
+import Swal from 'sweetalert2'
 
 const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null)
@@ -34,9 +35,14 @@ const AuthProvider = ({ children }) => {
   const logOut = async () => {
     try {
       await axios.post(`${import.meta.env.VITE_URL}/logout`, {}, { withCredentials: true })
-    } catch (err) {
-      console.error('Error clearing token cookie:', err)
-    }
+    }  catch (err) {
+    Swal.fire({
+      icon: "error",
+      title: "Logout Failed",
+      text:
+        err.response?.data?.message || "Something went wrong. Please try again.",
+    });
+  }
     localStorage.removeItem('token')
     return signOut(auth)
   }
@@ -51,14 +57,12 @@ const AuthProvider = ({ children }) => {
           { email: currentUser?.email },
           { withCredentials: true }
         )
-          .then(res => {
-            console.log(res.data);
-            setLoading(false)
+          .then(() => {
+            setLoading(false);
           })
-          .catch(err => {
-            console.log(err)
-            setLoading(false)
-          })
+          .catch(() => {
+            setLoading(false);
+          });
       } else {
         setLoading(false)
       }

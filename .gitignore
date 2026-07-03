@@ -17,10 +17,7 @@ dist-ssr
 .env.local
 .env.*.local
 
-# Firebase
-.firebase/
-.firebaserc
-coffee-web.json
+
 
 # Build outputs
 build/

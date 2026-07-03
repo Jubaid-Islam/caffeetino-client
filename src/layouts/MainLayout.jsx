@@ -2,21 +2,28 @@ import { Outlet } from "react-router-dom";
 import ScrollTop from "../components/ScrollTop";
 import NavBar from "../components/Home/NavBar";
 import Footer from "../components/Home/Footer";
+import Loading from "../ui/Loading";
+import { useContext } from "react";
+import { AuthContext } from "../contexts/AuthContext"
 
 const MainLayout = () => {
+  const { loading } = useContext(AuthContext);
+
+  if (loading) {
+    return <Loading />;
+  }
+
   return (
     <div className="min-h-screen flex flex-col">
-
       <NavBar />
 
       <ScrollTop />
 
-      <div className="flex-1 pt-[88px]">
+      <main className="flex-1 pt-16">
         <Outlet />
-      </div>
+      </main>
 
       <Footer />
-
     </div>
   );
 };

@@ -1,348 +1,339 @@
-import { FaTrash, FaPlus, FaMinus, FaShoppingCart, FaUser, FaTag, FaCoffee, FaArrowLeft } from 'react-icons/fa';
-import { GiCoffeeBeans, GiCoffeeCup } from 'react-icons/gi';
+import { useContext, useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
+import {
+  FaTrash,
+  FaPlus,
+  FaMinus,
+} from 'react-icons/fa';
+import { GiCoffeeCup } from 'react-icons/gi';
 import { BsCartCheck, BsCartX } from 'react-icons/bs';
-import { MdOutlineLocalOffer, MdDiscount } from 'react-icons/md';
-import { Link, NavLink, useNavigate } from 'react-router-dom';
-import { useContext } from 'react';
+import { HiOutlineArrowLeft } from 'react-icons/hi';
+import { TbShieldCheck, TbRefresh } from 'react-icons/tb';
+
 import { AuthContext } from '../contexts/AuthContext';
 import { CartContext } from '../contexts/CartContext';
+import Modal from './Checkout/Modal';
+import Checkout from './Checkout/Checkout';
 
 const AddToCartPage = () => {
-    const { user } = useContext(AuthContext);
-    const navigate = useNavigate();
-    const { cartItems = [], loading, updateQuantity, removeFromCart, clearCart } = useContext(CartContext);
+  const { user } = useContext(AuthContext);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const {
+    cartItems = [],
+    updateQuantity,
+    removeFromCart,
+    clearCart,
+  } = useContext(CartContext);
 
-    const handleQuantityChange = (id, type) => {
-        const item = cartItems.find(item => item._id === id);
-        if (item) {
-            const newQuantity = type === 'increase' ? item.cartQuantity + 1 : Math.max(1, item.cartQuantity - 1);
-            updateQuantity(id, newQuantity);
-        }
-    };
 
-    const handleRemoveItem = (id) => {
-        removeFromCart(id);
-    };
+  const subtotal = useMemo(
+    () =>
+      cartItems.reduce(
+        (sum, item) => sum + Number(item.price) * Number(item.cartQuantity),
+        0
+      ),
+    [cartItems]
+  );
 
-    if (loading) {
-        return (
-            <div className='min-h-screen flex items-center justify-center'>
-                <div className='text-center'>
-                    <div className='animate-spin rounded-full h-12 w-12 border-b-2 border-amber-600 mx-auto mb-4'></div>
-                    <p className='text-gray-600'>Loading your cart...</p>
-                </div>
-            </div>
-        );
-    }
+  const totalItems = useMemo(
+    () => cartItems.reduce((sum, item) => sum + item.cartQuantity, 0),
+    [cartItems]
+  );
 
-    const calculateSubtotal = () => {
-        return cartItems.reduce((total, item) => total + (Number(item.price) * Number(item.cartQuantity)), 0);
-    };
+  const shipping = useMemo(() => (subtotal > 50 ? 0 : 5.99), [subtotal]);
+  const tax = useMemo(() => subtotal * 0.08, [subtotal]);
+  const total = useMemo(() => subtotal + shipping + tax, [subtotal, shipping, tax]);
 
-    const calculateTotal = () => {
-        const subtotal = calculateSubtotal();
-        const shipping = subtotal > 50 ? 0 : 5.99;
-        const tax = subtotal * 0.08;
-        return subtotal + shipping + tax;
-    };
 
+  const handleQuantityChange = (id, type) => {
+    const item = cartItems.find((i) => i._id === id);
+    if (!item) return;
+    const newQuantity =
+      type === 'increase'
+        ? item.cartQuantity + 1
+        : Math.max(1, item.cartQuantity - 1);
+    updateQuantity(id, newQuantity);
+  };
+
+  const handleRemoveItem = (id) => removeFromCart(id);
+
+
+
+  // empty 
+  if (cartItems.length === 0) {
     return (
-        <div className='min-h-screen bg-gradient-to-br from-gray-50 to-amber-50 py-8 px-4'>
-            <div className='max-w-7xl mx-auto'>
-                {/* Header */}
-                <div className='mb-8'>
-                    <div className='flex flex-col md:flex-row justify-between items-start md:items-center gap-4'>
-                        <div>
-                            <div className='flex items-center gap-2 text-gray-600 mb-2'>
-                                <Link to='/allCoffees' className='py-4 flex items-center gap-2 hover:text-amber-700 transition-colors'>
-                                    <FaArrowLeft />
-                                    <span>Continue Shopping</span>
-                                </Link>
-                            </div>
-                            <h1 className='text-4xl font-bold text-gray-900 flex items-center gap-3'>
-                                <FaShoppingCart className='text-amber-600' />
-                                Your Shopping Cart
-                            </h1>
-                        </div>
-
-                        <div className='flex items-center gap-3 bg-white p-4 rounded-xl shadow-sm'>
-                            <div className='p-3 bg-amber-100 rounded-lg'>
-                                <FaUser className='text-amber-600 text-xl' />
-                            </div>
-                            <div>
-                                <div className='text-sm text-gray-500'>Shopping as</div>
-                                <div className='font-semibold text-gray-900 truncate max-w-[200px]'>{user?.email || 'Guest User'}</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div className='grid lg:grid-cols-3 gap-8'>
-                    {/* Cart Items Section */}
-                    <div className='lg:col-span-2'>
-                        {/* Cart Header */}
-                        <div className='bg-white rounded-xl shadow-lg p-6 mb-6'>
-                            <div className='grid grid-cols-12 gap-4 text-gray-700 font-semibold pb-4 border-b border-gray-200'>
-                                <div className='col-span-6'>Product</div>
-                                <div className='col-span-2 text-center'>Price</div>
-                                <div className='col-span-2 text-center'>Quantity</div>
-                                <div className='col-span-2 text-center'>Total</div>
-                            </div>
-
-                            {/* Cart Items */}
-                            {cartItems.length > 0 ? (
-                                <div className='space-y-4 mt-4'>
-                                    {cartItems.map(item => (
-                                        <div key={item._id} className='grid grid-cols-12 gap-4 items-center bg-gray-50 p-4 rounded-lg hover:bg-white transition-colors'>
-                                            {/* Product Info */}
-                                            <div className='col-span-6'>
-                                                <div className='flex items-center gap-4'>
-                                                    <div className='relative'>
-                                                        <div className='w-20 h-20 rounded-lg overflow-hidden bg-gray-200'>
-                                                            <img
-                                                                src={item.photo}
-                                                                alt={item.name}
-                                                                className='w-full h-full object-cover'
-                                                            />
-                                                        </div>
-                                                    </div>
-                                                    <div className='flex-1'>
-                                                        <h3 className='font-bold text-gray-900'>{item.name}</h3>
-                                                        <div className='flex items-center gap-2 text-sm text-gray-600 mt-1'>
-                                                            <FaTag className='text-xs' />
-                                                            <span>ID: {item._id?.slice(-6) || 'N/A'}</span>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            {/* Price */}
-                                            <div className='col-span-2'>
-                                                <div className='text-center'>
-                                                    <div className='text-xl font-bold text-gray-900'>${(Number(item?.price) || 0).toFixed(2)}</div>
-                                                    <div className='text-sm text-gray-500'>per unit</div>
-                                                </div>
-                                            </div>
-
-                                            {/* Quantity Controls */}
-                                            <div className='col-span-2'>
-                                                <div className='flex items-center justify-center gap-3'>
-                                                    <button
-                                                        onClick={() => handleQuantityChange(item._id, 'decrease')}
-                                                        className='w-8 h-8 rounded-full bg-gray-400 flex items-center justify-center hover:bg-gray-600 transition-colors disabled:opacity-50'
-                                                        disabled={item.cartQuantity <= 1}
-                                                    >
-                                                        <FaMinus className='text-white text-xs' />
-                                                    </button>
-
-                                                    <div className='w-12 h-8 bg-white border border-gray-300 rounded flex items-center justify-center'>
-                                                        <span className='font-bold text-gray-900'>{item.cartQuantity}</span>
-                                                    </div>
-
-                                                    <button
-                                                        onClick={() => handleQuantityChange(item._id, 'increase')}
-                                                        className='w-8 h-8 rounded-full bg-gray-400 flex items-center justify-center hover:bg-gray-600 transition-colors'
-                                                    >
-                                                        <FaPlus className='text-white text-xs' />
-                                                    </button>
-                                                </div>
-                                            </div>
-
-                                            {/* Total */}
-                                            <div className='col-span-2'>
-                                                <div>
-                                                    <div className='text-xl font-bold text-emerald-700'>
-                                                        ${((Number(item?.price) || 0) * (Number(item?.cartQuantity) || 0)).toFixed(2)}
-                                                    </div>
-
-                                                </div>
-                                                <div className='flex justify-end'>
-                                                    <button
-                                                        onClick={() => handleRemoveItem(item._id)}
-                                                        className='mt-1 absolute bg-gray-400 text-white hover:bg-gray-700 border px-3 py-2 rounded-xl  gap-1  transition-colors' >
-                                                        <FaTrash className='text-xs' />
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            ) : (
-                                /* Empty Cart */
-                                <div className='text-center py-12'>
-                                    <div className='w-24 h-24 mx-auto bg-gray-100 rounded-full flex items-center justify-center mb-6'>
-                                        <BsCartX className='text-gray-400 text-4xl' />
-                                    </div>
-                                    <h3 className='text-2xl font-bold text-gray-700 mb-2'>Your cart is empty</h3>
-                                    <p className='text-gray-600 mb-6'>Add some delicious coffee to your cart!</p>
-                                    <Link to='/allCoffees' className='btn btn-primary gap-2'>
-                                        <GiCoffeeCup />
-                                        Browse Coffee
-                                    </Link>
-                                </div>
-                            )}
-
-                            {/* Cart Actions */}
-                            {cartItems.length > 0 && (
-                                <div className='flex flex-col sm:flex-row justify-between items-center gap-4 mt-6 pt-6 border-t border-gray-200'>
-
-                                    <button className='btn bg-amber-500 hover:bg-amber-700 text-white gap-2'>
-                                        <MdDiscount />
-                                        Apply Coupon
-                                    </button>
-                                    <div className='flex items-center gap-4'>
-                                        <button
-                                            onClick={() => clearCart()}
-                                            className='btn btn-outline bg-gray-400 hover:bg-gray-700 text-white gap-2' >
-                                            <FaTrash />
-                                            Clear All
-                                        </button>
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-
-                        {/* User's Cart Summary */}
-                        <div className='bg-white rounded-xl shadow-lg p-6'>
-                            <h3 className='text-xl font-bold text-gray-900 mb-4 flex items-center gap-2'>
-                                <FaUser className='text-amber-600' />
-                                Your Cart Summary
-                            </h3>
-                            <div className='space-y-4'>
-                                <div className='grid grid-cols-2 gap-4'>
-                                    <div className='p-4 bg-blue-50 rounded-lg'>
-                                        <div className='text-sm text-gray-500 mb-1'>Total Items</div>
-                                        <div className='text-2xl font-bold text-blue-700'>
-                                            {cartItems.reduce((sum, item) => sum + item.cartQuantity, 0)}
-                                        </div>
-                                    </div>
-                                    <div className='p-4 bg-emerald-50 rounded-lg'>
-                                        <div className='text-sm text-gray-500 mb-1'>Unique Coffees</div>
-                                        <div className='text-2xl font-bold text-emerald-700'>
-                                            {cartItems.length}
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className='p-4 bg-amber-50 rounded-lg'>
-                                    <div className='flex items-center gap-3'>
-                                        <div className='p-2 bg-amber-100 rounded-lg'>
-                                            <FaShoppingCart className='text-amber-600' />
-                                        </div>
-                                        <div>
-                                            <div className='font-semibold text-gray-900'>Your Cart is Saved</div>
-                                            <div className='text-sm text-gray-600'>Items are automatically saved to your account</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Order Summary Sidebar */}
-                    <div className='lg:col-span-1'>
-                        <div className='bg-white rounded-xl shadow-lg p-6 sticky top-6'>
-                            <h3 className='text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2'>
-                                <BsCartCheck className='text-amber-600' />
-                                Order Summary
-                            </h3>
-
-                            {/* Price Breakdown */}
-                            <div className='space-y-4 mb-6'>
-                                <div className='flex justify-between text-gray-600'>
-                                    <span>Subtotal</span>
-                                    <span className='font-semibold'>${calculateSubtotal().toFixed(2)}</span>
-                                </div>
-
-                                <div className='flex justify-between text-gray-600'>
-                                    <span>Shipping</span>
-                                    <span className='font-semibold'>
-                                        {calculateSubtotal() > 50 ? (
-                                            <span className='text-emerald-600'>FREE</span>
-                                        ) : (
-                                            '$5.99'
-                                        )}
-                                    </span>
-                                </div>
-
-                                <div className='flex justify-between text-gray-600'>
-                                    <span>Tax (8%)</span>
-                                    <span className='font-semibold'>${(calculateSubtotal() * 0.08).toFixed(2)}</span>
-                                </div>
-
-                                <div className='pt-4 border-t border-gray-200'>
-                                    <div className='flex justify-between text-lg font-bold text-gray-900'>
-                                        <span>Total</span>
-                                        <span>${calculateTotal().toFixed(2)}</span>
-                                    </div>
-                                    <div className='text-sm text-gray-500 mt-1'>Including all taxes</div>
-                                </div>
-                            </div>
-
-                            {/* Promo Code */}
-                            <div className='mb-6'>
-                                <div className='flex items-center gap-2 mb-3'>
-                                    <MdOutlineLocalOffer className='text-amber-600' />
-                                    <span className='font-semibold text-gray-700'>Promo Code</span>
-                                </div>
-                                <div className='flex gap-2'>
-                                    <input
-                                        type='text'
-                                        placeholder='Enter code'
-                                        className='input input-bordered flex-1'
-                                    />
-                                    <button className='btn btn-outline'>Apply</button>
-                                </div>
-                            </div>
-
-                            {/* Checkout Button */}
-                            <button
-                                onClick={() => navigate('/checkout', { state: { orderType: 'cart', price: calculateTotal() } })}
-                                className='btn btn-primary btn-lg w-full gap-2 mb-4'>
-                                <BsCartCheck />
-                                Proceed to Checkout
-                            </button>
-
-                            {/* Payment Methods */}
-                            <div className='text-center text-sm text-gray-500 mt-4'>
-                                <div className='mb-2'>Secure Payment</div>
-                                <div className='flex justify-center gap-3'>
-                                    <div className='w-10 h-6 bg-gray-200 rounded'></div>
-                                    <div className='w-10 h-6 bg-gray-200 rounded'></div>
-                                    <div className='w-10 h-6 bg-gray-200 rounded'></div>
-                                </div>
-                            </div>
-
-                            {/* Order Benefits */}
-                            <div className='mt-6 pt-6 border-t border-gray-200'>
-                                <h4 className='font-semibold text-gray-700 mb-3'>Order Benefits</h4>
-                                <div className='space-y-3'>
-                                    <div className='flex items-center gap-2 text-sm'>
-                                        <div className='w-6 h-6 bg-emerald-100 rounded-full flex items-center justify-center'>
-                                            <GiCoffeeBeans className='text-emerald-600 text-xs' />
-                                        </div>
-                                        <span>Free shipping on orders over $50</span>
-                                    </div>
-                                    <div className='flex items-center gap-2 text-sm'>
-                                        <div className='w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center'>
-                                            <FaCoffee className='text-blue-600 text-xs' />
-                                        </div>
-                                        <span>Fresh roasted coffee delivered</span>
-                                    </div>
-                                    <div className='flex items-center gap-2 text-sm'>
-                                        <div className='w-6 h-6 bg-amber-100 rounded-full flex items-center justify-center'>
-                                            <BsCartCheck className='text-amber-600 text-xs' />
-                                        </div>
-                                        <span>Easy returns within 30 days</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+      <div className="min-h-screen bg-stone-50 py-8 sm:py-12 px-4">
+        <div className="container">
+          <div className="flex flex-col items-center justify-center py-32 gap-6 text-center">
+            <div className="relative">
+              <div className="w-20 h-20 rounded-full bg-stone-100 flex items-center justify-center">
+                <BsCartX className="text-stone-300 text-4xl" />
+              </div>
             </div>
+            <div>
+              <h2 className="text-xl font-medium text-stone-800 mb-1.5 tracking-tight">
+                Your cart is empty
+              </h2>
+              <p className="text-sm text-stone-400 max-w-xs leading-relaxed">
+                Explore our collection and add something delicious.
+              </p>
+            </div>
+            <Link
+              to="/allCoffees"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-amber-900 hover:bg-amber-800 text-white text-sm font-medium transition-colors rounded-xl"
+            >
+              <GiCoffeeCup className="text-base" />
+              Browse coffees
+            </Link>
+          </div>
         </div>
+      </div>
     );
+  }
+
+
+
+  return (
+    <div className="min-h-screen bg-gray-50 py-12 sm:py-16 ">
+      <div className="container">
+
+        {/* back */}
+        <div className="mb-3 sm:mb-2">
+          <Link
+            to="/allCoffees"
+            className="inline-flex items-center gap-2 text-sm text-stone-400 hover:text-amber-900 transition-colors"
+          >
+            <HiOutlineArrowLeft size={12} className="text-base" />
+            Back
+          </Link>
+
+        </div>
+
+        {/*  heading */}
+        <div className='flex justify-center items-center mb-5'>
+          <h1
+            className="text-stone-900 text-4xl tracking-tight leading-none " >
+            My Cart
+          </h1>
+        </div>
+        <div className="flex items-end justify-between gap-4 mb-8">
+          <div>
+
+            <p className="text-xs text-stone-400 tracking-wide">
+              {user?.email || 'Guest'}
+            </p>
+          </div>
+          <button
+            onClick={clearCart}
+            className="self-start sm:self-auto inline-flex items-center gap-2 text-xs uppercase tracking-wider text-stone-400 hover:text-red-500 transition-colors"
+          >
+            <FaTrash className="text-[10px]" />
+            Clear cart
+          </button>
+        </div>
+
+        {/* Main grid */}
+        <div className="grid lg:grid-cols-[1fr_340px] gap-8 items-start">
+
+
+          {/* Left column: items */}
+          <div>
+            {/* Table headers */}
+            <div className="hidden sm:grid grid-cols-12 gap-4 text-[10px] uppercase tracking-widest text-stone-400 pb-3 border-b border-stone-200 px-1">
+              <div className="col-span-5">Product</div>
+              <div className="col-span-2 text-center">Price</div>
+              <div className="col-span-2 text-center">Qty</div>
+              <div className="col-span-2 text-right">Total</div>
+            </div>
+
+            {/* Items list */}
+            <div className="flex flex-col divide-y divide-stone-100">
+              {cartItems.map((item, index) => (
+                <div
+                  key={item._id}
+                  className="grid grid-cols-12 gap-4 items-center py-4 px-1 group
+                             hover:bg-white hover:px-3 hover:-mx-2 transition-all duration-200 rounded-sm"
+                  style={{ animationDelay: `${index * 40}ms` }}
+                >
+                  {/* Product info */}
+                  <div className="col-span-12 sm:col-span-5 flex items-center gap-4">
+                    <div className="relative w-[72px] h-[72px] shrink-0 overflow-hidden bg-stone-100">
+                      <img
+                        src={item.photo}
+                        alt={item.name}
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-sm font-medium text-stone-800 truncate leading-snug">
+                        {item.name}
+                      </h3>
+                      <p className="text-xs text-stone-400 mt-0.5 font-mono tracking-wide">
+                        #{item._id?.slice(-6)}
+                      </p>
+                      {/* Show price on mobile */}
+                      <p className="sm:hidden text-sm font-medium text-stone-700 mt-1">
+                        ${Number(item.price).toFixed(2)}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Unit price (desktop) */}
+                  <div className="hidden sm:flex col-span-2 justify-center">
+                    <span className="text-sm text-stone-600">
+                      ${Number(item.price).toFixed(2)}
+                    </span>
+                  </div>
+
+                  {/* Quantity stepper */}
+                  <div className="col-span-7 sm:col-span-2 flex items-center justify-start sm:justify-center gap-0">
+                    <button
+                      onClick={() => handleQuantityChange(item._id, 'decrease')}
+                      disabled={item.cartQuantity <= 1}
+                      aria-label="Decrease quantity"
+                      className="w-8 h-8 flex items-center justify-center border border-stone-200
+                                 text-stone-500 hover:border-amber-800 hover:text-amber-800
+                                 disabled:opacity-25 disabled:cursor-not-allowed transition-colors"
+                    >
+                      <FaMinus className="text-[8px]" />
+                    </button>
+                    <span className="w-9 text-center text-sm font-medium text-stone-900 tabular-nums select-none">
+                      {item.cartQuantity}
+                    </span>
+                    <button
+                      onClick={() => handleQuantityChange(item._id, 'increase')}
+                      aria-label="Increase quantity"
+                      className="w-8 h-8 flex items-center justify-center border border-stone-200
+                                 text-stone-500 hover:border-amber-800 hover:text-amber-800
+                                 transition-colors"
+                    >
+                      <FaPlus className="text-[8px]" />
+                    </button>
+                  </div>
+
+                  {/* Line total, remove */}
+                  <div className="col-span-5 sm:col-span-3 flex items-center justify-end gap-4">
+                    <span className="text-sm font-semibold text-stone-800 tabular-nums">
+                      ${(Number(item.price) * Number(item.cartQuantity)).toFixed(2)}
+                    </span>
+                    <button
+                      onClick={() => handleRemoveItem(item._id)}
+                      aria-label={`Remove ${item.name}`}
+                      className="w-7 h-7 flex items-center justify-center text-stone-800
+                                 hover:text-gray-700 hover:bg-gray-100 rounded-sm
+"
+                    >
+                      <FaTrash className="text-[10px]" />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Right column- order summary */}
+          <div className=" flex flex-col gap-3">
+            <div className="bg-white border border-stone-100">
+              <div className="px-5 py-4 border-b border-stone-100">
+                <h2 className="text-xs uppercase tracking-widest text-stone-500 font-medium">
+                  Order summary
+                </h2>
+              </div>
+
+              <div className="px-5 py-4 flex flex-col gap-3">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-stone-500">
+                    Subtotal
+                    <span className="text-stone-400 ml-1">
+                      ({totalItems} item{totalItems !== 1 ? 's' : ''})
+                    </span>
+                  </span>
+                  <span className="text-sm font-medium text-stone-800 tabular-nums">
+                    ${subtotal.toFixed(2)}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-stone-500">Shipping</span>
+                  {shipping === 0 ? (
+                    <span className="text-sm font-medium text-emerald-600">Free</span>
+                  ) : (
+                    <span className="text-sm font-medium text-stone-800 tabular-nums">
+                      ${shipping.toFixed(2)}
+                    </span>
+                  )}
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-stone-500">Tax (8%)</span>
+                  <span className="text-sm font-medium text-stone-800 tabular-nums">
+                    ${tax.toFixed(2)}
+                  </span>
+                </div>
+              </div>
+
+              <div className="px-5 py-4 border-t border-stone-100 flex justify-between items-baseline">
+                <span className="text-sm font-medium text-stone-700">Total</span>
+                <span
+                  className="text-stone-900 tracking-tight tabular-nums"
+                >
+                  ${total.toFixed(2)}
+                </span>
+              </div>
+
+              <div className="px-5 pb-5">
+                <button
+                  onClick={() => setIsModalOpen(true)}
+                  disabled={cartItems.length === 0}
+                  className="w-full flex items-center justify-center gap-2.5 py-3.5
+             bg-amber-900 hover:bg-amber-800 text-white
+             text-xs uppercase tracking-wider
+             disabled:opacity-40 disabled:cursor-not-allowed
+             transition-colors rounded-xl"
+                >
+                  <BsCartCheck className="text-base" />
+                  Proceed to checkout
+                </button>
+
+                <Modal
+                  isOpen={isModalOpen}
+                  onClose={() => setIsModalOpen(false)}
+                >
+                  <Checkout
+                    orderType="cart"
+                    price={total}
+                  />
+                </Modal>
+
+              </div>
+            </div>
+
+            {/* Quick stats */}
+            <div className="grid grid-cols-2 gap-2">
+              <div className="bg-white border border-stone-100 px-4 py-3.5">
+                <p className="text-[10px] uppercase tracking-wider text-stone-400 mb-1">
+                  Items
+                </p>
+                <p
+                  className="text-2xl font-medium text-stone-800 leading-none tabular-nums"
+                >
+                  {totalItems}
+                </p>
+              </div>
+              <div className="bg-white border border-stone-100 px-4 py-3.5">
+                <p className="text-[10px] uppercase tracking-wider text-stone-400 mb-1">
+                  Coffees
+                </p>
+                <p
+                  className="text-2xl font-medium text-amber-900 leading-none tabular-nums"
+                >
+                  {cartItems.length}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 };
 
 export default AddToCartPage;

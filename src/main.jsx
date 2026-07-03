@@ -20,6 +20,7 @@ import AddToCartPage from './components/AddToCartPage.jsx'
 import Checkout from './components/Checkout/Checkout.jsx'
 import { loadStripe } from "@stripe/stripe-js";
 import { Elements } from "@stripe/react-stripe-js";
+import Profile from './components/Profile.jsx'
 
 const router = createBrowserRouter([
   {
@@ -34,6 +35,10 @@ const router = createBrowserRouter([
       {
         path: 'addCoffee',
         element: <PrivateRoute> <AddCoffee /> </PrivateRoute>
+      },
+      {
+        path: 'profile',
+        element: <PrivateRoute> <Profile /> </PrivateRoute>
       },
       {
         path: 'addToCartPage',
@@ -68,7 +73,8 @@ const router = createBrowserRouter([
       },
       {
         path: 'myOrders',
-        element: <PrivateRoute> <MyOrders /> </PrivateRoute>
+        element: <PrivateRoute> <MyOrders /> </PrivateRoute>,
+        
       },
       {
         path: 'checkout',

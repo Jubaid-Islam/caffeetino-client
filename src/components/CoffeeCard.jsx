@@ -1,104 +1,55 @@
-import { FaEdit, FaHeart, FaShoppingCart, FaStar } from "react-icons/fa";
+import { FaArrowRight } from "react-icons/fa";
 import { Link } from "react-router-dom";
-import CartButton from "../contexts/CartButton";
-import { useContext } from "react";
-import { AuthContext } from "../contexts/AuthContext";
-
 
 const CoffeeCard = ({ coffee }) => {
-    const { _id, name, price, quantity, photo, rating, email } = coffee;
-
-    const { user } = useContext(AuthContext);
-    const otherUser = user && user.email !== email;
+    const { _id, name, details, photo, price, quantity } = coffee;
 
     return (
-        <div className="card bg-white shadow-md hover:shadow-2xl transition-all duration-300 rounded-xl overflow-hidden border border-gray-200 h-full flex flex-col hover:scale-105">
+        <div className="group bg-stone-50 shadow-xl rounded-2xl overflow-hidden border border-amber-900/10 h-full flex flex-col ">
 
-            {/* Image Section */}
-            <figure className="relative h-40 sm:h-48 md:h-56 w-full overflow-hidden bg-gray-100">
+            {/* image*/}
+            <figure className="relative h-68 w-full overflow-hidden">
                 <img
                     src={photo}
                     alt={name}
-                    className="w-full h-full object-cover hover:scale-110 transition-transform duration-300"
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                 />
 
-
-                {/* Stock Badge */}
-                {quantity <= 5 && quantity > 0 && (
-                    <div className="absolute top-3 left-3 bg-orange-500 text-white px-3 py-1 rounded-full text-xs font-semibold">
-                        Low Stock
-                    </div>
-                )}
+                {/* Out of Stock Overlay */}
                 {quantity === 0 && (
                     <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-                        <span className="text-white font-bold text-lg">Out of Stock</span>
+                        <span className="text-white font-bold text-xs uppercase tracking-wider  px-6 py-3 ">
+                            Out of Stock
+                        </span>
                     </div>
                 )}
             </figure>
 
-            {/* Content Section */}
-            <div className="p-4 sm:p-5 space-y-3 flex flex-col flex-grow">
-
-                {/* Title + Stock */}
-                <div className="flex justify-between items-start gap-2">
-                    <div className="flex-1">
-                        <h3 className="text-base sm:text-lg font-semibold text-gray-900 line-clamp-2 leading-snug">
-                            {name}
-                        </h3>
-                        <p className="text-xs sm:text-sm text-gray-500 mt-1">
-                            <span className="font-medium text-gray-700">
-                                {quantity} pcs
-                            </span>
-                        </p>
-                    </div>
-
-                    {/* Price */}
-                    <p className="text-lg sm:text-xl font-bold text-amber-600 whitespace-nowrap">
-                        ${parseFloat(price).toFixed(2)}
+            {/* Content Section  */}
+            <div className="p-5 sm:p-6 flex flex-col flex-grow transition-all duration-300 group-hover:bg-white/80">
+                <div className="flex justify-between items-center">
+                    <h3 className="text-lg sm:text-xl font-bold leading-snug ">
+                        {name}
+                    </h3>
+                    <p className="text-sm sm:text-base font-bold text-amber-900">
+                        {price} $
                     </p>
                 </div>
 
-                {/* Rating */}
-                <div className="flex items-center gap-2">
-                    <div className="flex text-yellow-400">
-                        {[...Array(5)].map((_, i) => (
-                            <FaStar
-                                key={i}
-                                className={`text-xs sm:text-sm ${i < Math.floor(rating)
-                                    ? "fill-current"
-                                    : "text-gray-300"
-                                    }`}
-                            />
-                        ))}
-                    </div>
-                    <span className="text-xs sm:text-sm text-gray-600">
-                        {rating || "0.0"}
-                    </span>
-                </div>
+                <p className="text-sm mt-2 leading-relaxed line-clamp-3 text-stone-600 transition-all duration-300 group-hover:text-stone-800">
+                    {details}
+                </p>
 
-                {/* Action Buttons */}
-                {
-                    otherUser ? (
-                        <div className="flex flex-col sm:flex-row gap-2 pt-3 mt-auto">
-
-                            <CartButton coffee={coffee} />
-
-                            <Link to={`/coffee/${_id}`}
-                                className="btn btn-sm sm:btn-md py-1 text-sm flex-1 rounded-lg bg-gray-100 hover:bg-gray-200" >
-                                Details
-                            </Link>
-                        </div>
-                    ) : (
-                        <Link to={`/coffee/${_id}`}
-                            className="btn btn-sm sm:btn-md py-1 text-sm flex-1 rounded-lg bg-gray-100 hover:bg-gray-200" >
-                            Details
-                        </Link>
-                    )
-                }
+                <Link
+                    to={`/coffee/${_id}`}
+                    className="mt-4 inline-flex items-center gap-2 text-xs sm:text-sm font-semibold tracking-wide text-amber-900 uppercase group/link w-fit transition-all duration-300 hover:gap-3"
+                >
+                    Shop the coffee
+                    <FaArrowRight className="text-xs transition-transform duration-200 group-hover/link:translate-x-1" />
+                </Link>
             </div>
         </div>
     );
 };
 
 export default CoffeeCard;
-

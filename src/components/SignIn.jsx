@@ -1,62 +1,158 @@
-import { useContext } from 'react'
-import { AuthContext } from '../contexts/AuthContext'
-import Swal from 'sweetalert2'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useContext, useState } from 'react';
+import { AuthContext } from '../contexts/AuthContext';
+import Swal from 'sweetalert2';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { FaEnvelope, FaLock, FaCoffee, FaSpinner } from 'react-icons/fa';
+import logo from "../assets/more/logo.png";
+
 
 const SignIn = () => {
-  const { signIn } = useContext(AuthContext)
-  const location = useLocation()
-  const navigate = useNavigate()
-  const handleSignIn = e => {
-    e.preventDefault()
-    const form = e.target
-    const email = form.email.value
-    const password = form.password.value
+  const { signIn } = useContext(AuthContext);
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
-    // firebase sign in send
+  const handleSignIn = (e) => {
+    e.preventDefault();
+    setError('');
+    const form = e.target;
+    const email = form.email.value;
+    const password = form.password.value;
+
+    setLoading(true);
     signIn(email, password)
-      .then(result => {
-        console.log(result.user)
+      .then(() => {
         Swal.fire({
           icon: 'success',
-          title: 'Login Successful!',
+          title: 'Welcome back!',
+          text: 'You have been signed in successfully.',
+          timer: 2000,
           showConfirmButton: false,
-          timer: 1500,
-        })
-        navigate(`${location.state ? location.state : '/'}`)
+          customClass: { popup: 'rounded-2xl' },
+        });
+        navigate(location.state?.from || '/');
       })
-      .catch(err => {
-        console.log(err)
-      })
-  }
+      .catch((err) => {
+        setError(err.message || 'Invalid email or password. Please try again.');
+        setLoading(false);
+      });
+  };
 
   return (
-    <div className='card bg-base-100 max-w-sm mx-auto shrink-0 shadow-2xl my-12'>
-      <div className='card-body'>
-        <h1 className='text-5xl font-bold'>Sign In now!</h1>
-        <form onSubmit={handleSignIn} className='fieldset'>
-          <label className='label'>Email</label>
-          <input
-            type='email'
-            name='email'
-            className='input'
-            placeholder='Email'
-          />
-          <label className='label'>Password</label>
-          <input
-            type='password'
-            name='password'
-            className='input'
-            placeholder='Password'
-          />
-          <div>
-            <a className='link link-hover'>Forgot password?</a>
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4 py-12">
+      <div className="w-full max-w-lg">
+        <div className="bg-white rounded-3xl shadow-2xl shadow-stone-200/60 border border-stone-100/80 p-8 md:p-10 transition-all duration-300 hover:shadow-stone-300/40">
+
+          <div className="text-center mb-8">
+            <div className="inline-flex items-center gap-2">
+              <img src={logo} alt="Caffeetino logo" className="h-10 w-auto" />
+              <span className="text-xl font-medium text-stone-800 tracking-[0.1em]  transition-colors">
+                Caffeetino
+              </span>
+            </div>
+
+            <p className="text-stone-500 text-sm mt-1">
+              Sign in to your account to continue.
+            </p>
           </div>
-          <button className='btn btn-neutral mt-4'>Sign in</button>
-        </form>
+
+
+
+          <form onSubmit={handleSignIn} className="space-y-5">
+            <div>
+              <label className="block text-sm font-medium text-stone-700 mb-1.5">
+                Email Address
+              </label>
+              <div className="relative">
+                <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 text-stone-400">
+                  <FaEnvelope className="text-sm" />
+                </span>
+                <input
+                  type="email"
+                  name="email"
+                  required
+                  defaultValue="user@1.com"
+                  className="w-full pl-10 pr-4 py-3 rounded-xl border border-stone-200 focus:border-stone-400 outline-none transition-all duration-200 bg-stone-50/50 placeholder:text-stone-400 text-stone-800 text-sm"
+                  placeholder="you@example.com"
+                />
+              </div>
+            </div>
+
+            <div>
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="block text-sm font-medium text-stone-700">
+                  Password
+                </label>
+                <div
+
+                  className="text-xs font-medium text-amber-900 hover:underline transition-colors"
+                >
+                  Forgot password?
+                </div>
+              </div>
+              <div className="relative">
+                <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 text-stone-400">
+                  <FaLock className="text-sm" />
+                </span>
+                <input
+                  type="password"
+                  name="password"
+                  required
+                  defaultValue="111111"
+                  className="w-full pl-10 pr-4 py-3 rounded-xl border border-stone-200 focus:border-stone-400 outline-none bg-stone-50/50 placeholder:text-stone-400 text-stone-800 text-sm"
+                  placeholder="••••••••"
+                />
+              </div>
+            </div>
+
+            {error && (
+              <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-red-600 text-xs leading-relaxed">
+                {error}
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl bg-amber-900 hover:bg-amber-800 text-white font-semibold text-sm disabled:opacity-70 disabled:cursor-not-allowed"
+            >
+              {loading ? (
+                <>
+                  <FaSpinner className="animate-spin" />
+                  Signing in...
+                </>
+              ) : (
+                'Sign In'
+              )}
+            </button>
+          </form>
+
+          <div className="relative flex items-center my-6">
+            <div className="flex-grow border-t border-stone-200" />
+            <span className="flex-shrink mx-4 text-xs text-stone-400 uppercase tracking-wider">
+              or
+            </span>
+            <div className="flex-grow border-t border-stone-200" />
+          </div>
+
+          <p className="text-center text-sm text-stone-500">
+            Don't have an account?{' '}
+            <Link
+              to="/signup"
+              className="font-semibold text-amber-900 hover:underline transition-colors"
+            >
+              Create new account
+            </Link>
+          </p>
+        </div>
+
+        <p className="text-center text-xs text-stone-400 mt-5">
+          Secure • Encrypted • Free
+        </p>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default SignIn
+export default SignIn;
