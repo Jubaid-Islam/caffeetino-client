@@ -1,6 +1,6 @@
-# Caffetino Client
+# Caffeetino Client
 
-Frontend of the Caffetino coffee web store, built to deliver a smooth shopping experience with secure authentication, online payments, and intuitive order management.
+Frontend of the Caffeetino coffee web store, built to deliver a smooth shopping experience with secure authentication, online payments, and intuitive order management.
 
 ## Features
 
@@ -40,7 +40,7 @@ Frontend of the Caffetino coffee web store, built to deliver a smooth shopping e
 
 ## Related Repository
 
-- Server: https://github.com/Jubaid-Islam/caffetino-server
+- Server: https://github.com/Jubaid-Islam/caffeetino-server
 
 ## Author
 
