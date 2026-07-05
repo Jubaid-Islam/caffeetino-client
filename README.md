@@ -16,7 +16,6 @@ Frontend of the Caffeetino coffee web store, built to deliver a smooth shopping 
 - React.js
 - React Router
 - Tailwind CSS
-- DaisyUI
 - Firebase Authentication
 - Axios
 - Stripe
